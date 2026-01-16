@@ -1,12 +1,16 @@
 from fastapi import FastAPI, Request, Form, Depends
 from fastapi.templating import Jinja2Templates
 from fastapi.responses import RedirectResponse, HTMLResponse
+from fastapi.staticfiles import StaticFiles
 from sqlalchemy import create_engine, Column, Integer, String, Boolean
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, Session
 
 app = FastAPI()
 templates = Jinja2Templates(directory="templates")
+
+# Serve static files (CSS / JS)
+app.mount("/static", StaticFiles(directory="static"), name="static")
 
 # Database setup
 SQLALCHEMY_DATABASE_URL = "sqlite:///./todos.db"

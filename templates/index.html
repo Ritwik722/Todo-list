@@ -1,25 +1,66 @@
-<!DOCTYPE html>
-<html>
-<head><title>Todo CRUD</title></head>
-<body>
-    <h1>Todo List</h1>
-    <form method="post" action="/create">
-        <input type="text" name="task" placeholder="New task" required>
-        <button type="submit">Add</button>
-    </form>
-    <ul>
-        {% for todo in todos %}
-        <li>
-            {{ todo.task }} 
-            {% if todo.completed %}<s>{% endif %}
-            <form method="post" action="/update/{{ todo.id }}" style="display:inline;">
-                <button name="completed" value="{{ not todo.completed }}">{{ 'Undo' if todo.completed else 'Done' }}</button>
-            </form>
-            <form method="post" action="/delete/{{ todo.id }}" style="display:inline;">
-                <button onclick="return confirm('Delete?')">Delete</button>
-            </form>
-        </li>
-        {% endfor %}
-    </ul>
-</body>
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width,initial-scale=1" />
+        <title>Todo — Creative & Minimal</title>
+        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+        <link rel="stylesheet" href="/static/styles.css">
+    </head>
+    <body>
+        <main class="container">
+            <header class="app-header">
+                <div>
+                    <h1 class="title">Your Tasks</h1>
+                    <p class="subtitle">Organize, focus, and finish — with a friendly UI.</p>
+                </div>
+                <div class="stats" aria-hidden="true">
+                    {% set total = todos|length %}
+                    {% set remaining = (todos|selectattr('completed','equalto',False)|list)|length %}
+                    <div class="stat"><strong>{{ remaining }}</strong><span>left</span></div>
+                    <div class="stat"><strong>{{ total }}</strong><span>total</span></div>
+                </div>
+            </header>
+
+            <section class="card new-task">
+                <form class="todo-form" method="post" action="/create">
+                    <input name="task" class="input" placeholder="Add a new task..." required autocomplete="off" />
+                    <button class="btn primary" type="submit">Add Task</button>
+                </form>
+            </section>
+
+            <section class="card list-card">
+                {% if todos|length == 0 %}
+                    <div class="empty">
+                        <p>No tasks yet — add one above to get started.</p>
+                    </div>
+                {% else %}
+                    <ul class="todo-list">
+                        {% for todo in todos %}
+                        <li class="todo-item {% if todo.completed %}completed{% endif %}">
+                            <div class="left">
+                                <form method="post" action="/update/{{ todo.id }}" style="display:inline;">
+                                    <input type="hidden" name="completed" value="{{ 'false' if todo.completed else 'true' }}">
+                                    <button class="btn-check" type="submit" aria-label="Toggle completion">
+                                        <svg viewBox="0 0 24 24" class="check-icon" aria-hidden="true"><path d="M20 6L9 17l-5-5" fill="none" stroke-width="2" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                                    </button>
+                                </form>
+                                <div class="task-text">{{ todo.task }}</div>
+                            </div>
+                            <div class="actions">
+                                <form method="post" action="/delete/{{ todo.id }}" style="display:inline;">
+                                    <button class="btn danger" type="submit" onclick="return confirm('Delete this task?')">Delete</button>
+                                </form>
+                            </div>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+            </section>
+
+            <footer class="footer">
+                <small>Designed for clarity — powered by FastAPI & SQLite.</small>
+            </footer>
+        </main>
+    </body>
 </html>
